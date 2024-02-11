@@ -1,0 +1,12 @@
+#for Redirect http to https
+RewriteEngine On 
+RewriteCond %{SERVER_PORT} 80 
+RewriteRule ^(.*)$https://digitalgravememory.com/$1 [R=301,L,NE]
+
+#for remove public folder in laravel
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  RewriteCond %{REQUEST_URI} !/public/
+  RewriteRule (.*) public/$1 [L]
+</IfModule>
+
