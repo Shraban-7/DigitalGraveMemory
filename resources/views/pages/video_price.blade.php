@@ -1,4 +1,4 @@
-@extends("layout.layout")
+@extends("layout.app")
 @section("content")
 <main  class="main-content fadeIn" >
 <br>

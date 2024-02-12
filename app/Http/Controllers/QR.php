@@ -1,21 +1,23 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
-use App\Models\QR_Model;
-use App\Models\qr_photos_link;
-use App\Models\tributes_link;
-use App\Models\User_auth;
-use App\Models\qr_payment_info;
-use App\Mail\Qr_Mail;
 use Mail;
+use App\Mail\Qr_Mail;
+use App\Models\QR_Model;
+use App\Models\User_auth;
+use Illuminate\Http\Request;
+use App\Models\tributes_link;
+use App\Models\qr_photos_link;
+use App\Models\qr_payment_info;
+use Illuminate\Support\Facades\DB;
 use  SimpleSoftwareIO\QrCode\Facades\QrCode;
+
 class QR extends Controller
 {
    public function create_qr(Request $req){
-    
+
 //    return $this->upload_image($req->file("img_path"));
-        
+
     // return  $this->upload_image($req->file("profile_img"));
 
     $req->validate([
@@ -40,7 +42,7 @@ class QR extends Controller
     ]);
     // return $req;
    $insert_id =  QR_Model::insertGetId([
-       
+
         'full_name'=>$req->full_name,
         'birth_day'=>$req->birth_day,
         'profile_img'=>$this->upload_image($req->file("profile_img")),
@@ -55,7 +57,7 @@ class QR extends Controller
         'cemetery_plot_location'=>$req->cemetery_plot_location,
         'paid_status'=>base64_decode($req->paid_status),
         'user_auth_id'=>$req->session()->get('auth_id'),
-        
+
 
     ]);
 
@@ -76,7 +78,10 @@ class QR extends Controller
    }
 
    public function QR_Code(Request $req){
-     $qr_data =   QR_Model::where(['user_auth_id'=>$req->session()->get('auth_id')])->get();
+     $qr_data =  DB::table('qr_payment_info')
+     ->join('qr_profile', 'qr_payment_info.payer_id', '=', 'qr_profile.user_auth_id')
+     ->where('qr_payment_info.payer_id', $req->session()->get('auth_id'))
+     ->get();
     return view("pages.useradmin.all_qr_code",['qr_data'=>$qr_data]);
    }
 
@@ -86,13 +91,13 @@ class QR extends Controller
     public static function generateQRCode($id)
     {
         $htmlPageUrl = \URL::to("/qr_profile/$id");
-       return QrCode::size(50)->generate("$htmlPageUrl"); 
+       return QrCode::size(50)->generate("$htmlPageUrl");
     }
 
     public static function downloadQRCode($id)
     {
         $htmlPageUrl = \URL::to("/qr_profile/$id");
-       return QrCode::size(335)->generate("$htmlPageUrl"); 
+       return QrCode::size(335)->generate("$htmlPageUrl");
     }
 
 
@@ -119,7 +124,7 @@ class QR extends Controller
         $qr_data=  QR_Model::where(['id'=>$id])->first();
         $tributes_link=  tributes_link::where(['qr_id'=>$id])->get();
         $qr_photos_link=  qr_photos_link::where(['qr_id'=>$id])->get();
- 
+
         if($qr_data != null){
             return view('pages.useradmin.show_qr_data',['qr_data'=>$qr_data,'qr_photos_link'=>$qr_photos_link,'tributes_link'=>$tributes_link]);
 
@@ -147,7 +152,7 @@ class QR extends Controller
     public function qr_data_update(Request $req){
        $base_64_id = base64_encode($req->id);
      if(isset($req->full_name)){
-        
+
         $req->validate([
             'full_name' => 'required|max:255',
             'birth_day' => 'required|max:255',
@@ -162,17 +167,17 @@ class QR extends Controller
         ]);
         if(isset($req->profile_img)){
             $req->validate(['profile_img' =>'required|image|mimes:png,jpg,jpeg',]);
-            
+
             QR_Model::where(['id'=>$req->id])->update([
                 'profile_img'=>$this->update_img($req->profile_img,$req->profile_img_path),
             ]);
-            
+
         }
         return redirect("/show_qr_data/$base_64_id")->with(['condition'=>true,'message'=>'Updated Success']);
      }else if(isset($req->bio)){
         QR_Model::where(['id'=>$req->id])->update([
             'bio'=>$req->bio,
-           
+
         ]);
         return redirect("/show_qr_data/$base_64_id")->with(['condition'=>true,'message'=>'Updated Success']);
 
@@ -181,7 +186,7 @@ class QR extends Controller
             'video' => 'required',
             'video_title' => 'required|max:255',
             // 'video_description' => 'required|',
-          
+
         ]);
         QR_Model::where(['id'=>$req->id])->update([
             'youtube_link'=>$req->video,
@@ -195,7 +200,7 @@ class QR extends Controller
             'cemetery_name' => 'required|max:255',
             'cemetery_plot_number' => 'required|max:255',
             'cemetery_plot_location' => 'required|max:255',
-          
+
         ]);
         QR_Model::where(['id'=>$req->id])->update([
             'cemetery_name'=>$req->cemetery_name,
@@ -203,7 +208,7 @@ class QR extends Controller
             'cemetery_plot_location'=>$req->cemetery_plot_location,
         ]);
         return redirect("/show_qr_data/$base_64_id")->with(['condition'=>true,'message'=>'Updated Success']);
-  
+
      }
 
     }
@@ -213,7 +218,7 @@ class QR extends Controller
         // dd($req->all());
         $base_64_id = base64_encode($req->id);
         if(isset($req->qr_photo)){
-           
+
              $this->delete_img(qr_photos_link::where(['id'=>$req->qr_photo])->first()->photo);
              qr_photos_link::where(['id'=>$req->qr_photo])->delete();
              return redirect("/show_qr_data/$base_64_id")->with(['condition'=>true,'message'=>'Deleted Success']);
@@ -230,7 +235,7 @@ class QR extends Controller
         if(isset($req->tributes_link)){
             $req->validate([
                 'tributes_link' => 'required',
-                'qr_id' => 'required|max:255',             
+                'qr_id' => 'required|max:255',
             ]);
             tributes_link::insert([
                 'qr_id'=>$req->qr_id,
@@ -238,7 +243,7 @@ class QR extends Controller
             ]);
             return redirect("/QR_Code")->with(['condition'=>true,'message'=>'Added Success']);
 
-        
+
         }else if(isset($req->photo)){
             // return $req;
             qr_photos_link::insert([

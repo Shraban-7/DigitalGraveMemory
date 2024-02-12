@@ -1,11 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Model\qr_payment_info;
-
-
-
-
+use Illuminate\Support\Facades\DB;
+use App\Models\User_auth;
 use Illuminate\Http\Request;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
@@ -15,11 +12,18 @@ class PaypalController extends Controller
     {
 
         $session =  $request->session()->all();
-        // $result =  qr_payment_info::insert([
-        //     'payer_id'=>$session["auth_id"],
-        //     'amount'=>$session["amount"],
-        //     'qr_price_info'=>$session["pack"],
-        // ]);
+
+        // return $session;
+
+        $authUserId = $request->session()->get('auth_id');
+
+      $user = User_auth::findOrFail($authUserId);
+
+        $userData = [
+            'name' => $user->name,
+            'mail' => $user->mail,
+            'religion'=>$user->religion
+        ];
 
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
@@ -42,7 +46,9 @@ class PaypalController extends Controller
                   "amount" => [
                     "currency_code" => "EUR",
                     "value" => $session["amount"],
-                    ]
+                  ],
+                  "custom_id" => $user->id,
+                  "description" => "Payment for " . $user->name,
                 ]
               ]
         ]);
@@ -68,15 +74,23 @@ class PaypalController extends Controller
 
     public function paymentSuccess(Request $request)
     {
+        $session =  $request->session()->all();
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
         $accessToken = $provider->getAccessToken();
         $response = $provider->capturePaymentOrder($request->token);
 
         if(isset($response['status']) && $response['status'] == 'COMPLETED'){
+            DB::table('qr_payment_info')->insert([
+                'payer_id' => $session["auth_id"],
+                'amount' => $session["amount"],
+                'qr_price_info' => $session["pack"],
+            ]);
 
         }
 
-        dd($response);
+        // dd($response);
+
+        return redirect()->route('dashboard')->with('success','payment successful');
     }
 }

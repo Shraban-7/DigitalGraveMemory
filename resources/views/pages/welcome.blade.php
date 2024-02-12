@@ -1,4 +1,4 @@
-@extends("layout.layout")
+@extends("layout.app")
 @section("content")
 {{-- @dd(App\Http\Controllers\Controller::$img_url) --}}
 <main id="mainContent" class="main-content fadeIn" role="main">

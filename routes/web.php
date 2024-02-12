@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\QR;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LangController;
 use App\Http\Controllers\PaypalController;
@@ -53,8 +55,14 @@ Route::get('video', function () {
 // });
 
 Route::get('qr_dashboard', function () {
-    return view('pages.qr_dashboard');
-})->middleware('user_login');
+
+    $count = DB::table('qr_payment_info')
+            ->where('payer_id', Session::get('auth_id'))
+            ->count();
+
+
+    return view('pages.qr_dashboard',compact('count'));
+})->middleware('user_login')->name('dashboard');
 
 Route::get('qr_code_form', function (Request $req) {
 

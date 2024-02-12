@@ -1,6 +1,6 @@
 @extends("layout.layout3")
 @section("content")
- 
+
 <div class="content-wrapper">
 <div class="content-header">
 <div class="container-fluid">
@@ -46,10 +46,10 @@
                         <td>{{$i++}}</td>
                         <td>{{$data->full_name}}</td>
                         <td>
-                          <div style="width: 68%" id="download_id_{{$data->id}}"> {{App\Http\Controllers\QR::generateQRCode($ba_64)}} </div>                        
+                          <div style="width: 68%" id="download_id_{{$data->id}}"> {{App\Http\Controllers\QR::generateQRCode($ba_64)}} </div>
                         </td>
                         <td>
-                         
+
                             <a href="#" class="btn btn-sm btn-warning"   data-bs-toggle="modal" data-bs-target="#modal_qr_{{$data->id}}" class="btn"> <i class="fa fa-download" aria-hidden="true"></i> </a>
 
                             {{-- <a onclick="download_qr({{$data->id}})" class="btn btn-sm btn-warning" title="Download"><i class="fa fa-download" aria-hidden="true"></i> </a> --}}
@@ -65,12 +65,12 @@
                                       <div style="position: relative;width: 79%" id="qr_img_{{$data->id}}">
                                           <img style="width: 23rem;height: 25.3rem " src="{{asset("assets/images/imagesqr.jpeg")}}" alt="">
                                          <div class="download_qr_code" style="position: absolute; top: 17px;left: 17px">
-                                          {{App\Http\Controllers\QR::downloadQRCode($ba_64)}} 
+                                          {{App\Http\Controllers\QR::downloadQRCode($ba_64)}}
                                          </div>
-                                         
-                                        
+
+
                                       </div>
-                                 
+
                                   </div>
                                   <div class="modal-footer">
                                       <div>
@@ -99,7 +99,7 @@
                 </tbody>
             </table>
 
-          
+
 
         </div>
     </div>
@@ -132,7 +132,7 @@
     </div>
   </div>
 
-  
+
   <!-- Modal -->
   <div class="modal fade" id="photo_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -162,11 +162,11 @@
     function handle_qr_id(e){
         console.log(  document.getElementById(e.split("_")[0]));
         document.getElementById(e.split("_")[0]).value = e.split("_")[1]
-      
+
     }
 
     function download_qr(id){
-      
+
 
   const canvas = document.getElementById(`download_id_${id}`);
   console.log(canvas);
@@ -180,13 +180,13 @@
         console.log(id)
                 html2canvas(document.getElementById(id)).then(canvas => {
                    let convart_base_64 =  canvas.toDataURL('image/png')
-                  
+
                    document.getElementById(`btn_download_${id}`).classList.remove("d-none")
                     document.getElementById(`btn_download_${id}`).href= convart_base_64;
 
                 });
     }
-  
+
 
   </script>
 

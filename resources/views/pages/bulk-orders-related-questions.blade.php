@@ -1,4 +1,4 @@
-@extends("layout.layout")
+@extends("layout.app")
 @section("content")
 <main id="mainContent" class="main-content fadeIn" role="main">
   <div id="shopify-section-template--16836528275707__1dec1d83-80d7-4ad7-aa8a-f604c03d3811" class="shopify-section custom-html-section">

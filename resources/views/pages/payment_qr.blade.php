@@ -1,4 +1,4 @@
-@extends("layout.layout")
+@extends("layout.app")
 @section("content")
 
 <main id="mainContent" class="main-content fadeIn" role="main">
@@ -8,7 +8,9 @@
     <div class="box">
         <div class=" d-flex justify-content-center">
             <div style="width: 10rem">
-                <a href="{{ route('make.payment') }}" class="btn custom_brand_btn btn-sm d-flex justify-content-center">{{ GoogleTranslate::trans('Pay With PayPal', app()->getLocale()) }}</a>
+                <a href="{{ route('make.payment') }}" class="btn custom_brand_btn btn-sm d-flex justify-content-center mb-2">{{ GoogleTranslate::trans('Pay With PayPal', app()->getLocale()) }}</a>
+                <a href="{{ route('make.payment') }}" class="btn custom_brand_btn btn-sm d-flex justify-content-center mb-2">{{ GoogleTranslate::trans('Pay With VISA', app()->getLocale()) }}</a>
+                <a href="{{ route('make.payment') }}" class="btn custom_brand_btn btn-sm d-flex justify-content-center">{{ GoogleTranslate::trans('Pay With Uddokta Pay', app()->getLocale()) }}</a>
             </div>
         </div>
     </div>
